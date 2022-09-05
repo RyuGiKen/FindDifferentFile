@@ -29,7 +29,7 @@ namespace FindDifferentFile
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static List<FileInfo> LoadFiles(string path, ListBox listBox = null)
+        public static List<FileInfo> LoadFiles(string path, ListBox listBox = null, TextBox count = null)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
@@ -37,7 +37,7 @@ namespace FindDifferentFile
                 Directory.CreateDirectory(path);
             List<FileInfo> result = GetFile.GetFileInfos(path);
             Console.WriteLine("找到" + result?.Count);
-            UpdateList(listBox, result.ToArray());
+            UpdateList(listBox, result.ToArray(), count);
             return result;
         }
         /// <summary>
@@ -46,12 +46,15 @@ namespace FindDifferentFile
         /// <typeparam name="T"></typeparam>
         /// <param name="listBox"></param>
         /// <param name="array"></param>
-        static void UpdateList<T>(ListBox listBox, T[] array) where T : class
+        static void UpdateList<T>(ListBox listBox, T[] array, TextBox count = null) where T : class
         {
             if (listBox != null)
             {
                 listBox.Items.Clear();
-                listBox.Items.AddRange(array);
+                if (array != null || array.Length > 0)
+                    listBox.Items.AddRange(array);
+                if (count != null)
+                    count.Text = listBox.Items.Count.ToString();
             }
         }
         /// <summary>
@@ -64,7 +67,7 @@ namespace FindDifferentFile
             if (string.IsNullOrEmpty(textBox1.Text))
                 return;
             path1 = textBox1.Text;
-            files1 = LoadFiles(path1, listBox1);
+            files1 = LoadFiles(path1, listBox1, textBox3);
         }
         /// <summary>
         /// 导入目录2
@@ -76,7 +79,7 @@ namespace FindDifferentFile
             if (string.IsNullOrEmpty(textBox2.Text))
                 return;
             path2 = textBox2.Text;
-            files2 = LoadFiles(path2, listBox2);
+            files2 = LoadFiles(path2, listBox2, textBox4);
         }
         /// <summary>
         /// 找出差异
@@ -100,8 +103,8 @@ namespace FindDifferentFile
                     }
                 }
             }
-            UpdateList(listBox1, files1.ToArray());
-            UpdateList(listBox2, files2.ToArray());
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -132,8 +135,8 @@ namespace FindDifferentFile
             }
             files1 = data1;
             files2 = data2;
-            UpdateList(listBox1, files1.ToArray());
-            UpdateList(listBox2, files2.ToArray());
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -145,8 +148,8 @@ namespace FindDifferentFile
         {
             files1?.Clear();
             files2?.Clear();
-            listBox1.Items.Clear();
-            listBox2.Items.Clear();
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
         }
     }
 }

@@ -39,15 +39,17 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(300, 3);
+            this.button1.Location = new System.Drawing.Point(312, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(63, 23);
             this.button1.TabIndex = 3;
             this.button1.Text = "导入";
             this.button1.UseVisualStyleBackColor = true;
@@ -62,6 +64,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.textBox3);
             this.panel1.Controls.Add(this.listBox1);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.textBox1);
@@ -84,6 +87,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.textBox4);
             this.panel2.Controls.Add(this.listBox2);
             this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.textBox2);
@@ -106,9 +110,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(300, 3);
+            this.button2.Location = new System.Drawing.Point(312, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(63, 23);
             this.button2.TabIndex = 3;
             this.button2.Text = "导入";
             this.button2.UseVisualStyleBackColor = true;
@@ -151,6 +155,20 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(259, 3);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(47, 21);
+            this.textBox3.TabIndex = 6;
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(259, 3);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(47, 21);
+            this.textBox4.TabIndex = 7;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -166,7 +184,7 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "文件比较";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -188,6 +206,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox4;
     }
 }
 
