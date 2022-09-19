@@ -34,8 +34,8 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.listBox2 = new System.Windows.Forms.ListBox();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
@@ -51,7 +51,7 @@
             this.button1.Location = new System.Drawing.Point(312, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(63, 23);
-            this.button1.TabIndex = 3;
+            this.button1.TabIndex = 7;
             this.button1.Text = "导入";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -73,12 +73,13 @@
             this.panel1.Location = new System.Drawing.Point(12, 44);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(378, 405);
-            this.panel1.TabIndex = 7;
+            this.panel1.TabIndex = 4;
             // 
             // textBox3
             // 
             this.textBox3.Location = new System.Drawing.Point(259, 3);
             this.textBox3.Name = "textBox3";
+            this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(47, 21);
             this.textBox3.TabIndex = 6;
             this.textBox3.Text = "文件数";
@@ -114,14 +115,6 @@
             this.panel2.Size = new System.Drawing.Size(378, 405);
             this.panel2.TabIndex = 8;
             // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(259, 3);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(47, 21);
-            this.textBox4.TabIndex = 7;
-            this.textBox4.Text = "文件数";
-            // 
             // listBox2
             // 
             this.listBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -138,12 +131,21 @@
             this.listBox2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBox_DoubleClick);
             this.listBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.listBox_MouseRightClick);
             // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(259, 3);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.ReadOnly = true;
+            this.textBox4.Size = new System.Drawing.Size(47, 21);
+            this.textBox4.TabIndex = 10;
+            this.textBox4.Text = "文件数";
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(312, 3);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(63, 23);
-            this.button2.TabIndex = 3;
+            this.button2.TabIndex = 11;
             this.button2.Text = "导入";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -153,7 +155,7 @@
             this.textBox2.Location = new System.Drawing.Point(3, 3);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(250, 21);
-            this.textBox2.TabIndex = 5;
+            this.textBox2.TabIndex = 9;
             this.textBox2.Text = "目录路径";
             // 
             // button3
@@ -161,7 +163,7 @@
             this.button3.Location = new System.Drawing.Point(15, 12);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(120, 23);
-            this.button3.TabIndex = 9;
+            this.button3.TabIndex = 0;
             this.button3.Text = "找出差异";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
@@ -171,7 +173,7 @@
             this.button4.Location = new System.Drawing.Point(145, 12);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(120, 23);
-            this.button4.TabIndex = 10;
+            this.button4.TabIndex = 1;
             this.button4.Text = "找出相同";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
@@ -181,7 +183,7 @@
             this.button5.Location = new System.Drawing.Point(271, 12);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(120, 23);
-            this.button5.TabIndex = 11;
+            this.button5.TabIndex = 2;
             this.button5.Text = "清空";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
@@ -191,7 +193,7 @@
             this.button6.Location = new System.Drawing.Point(397, 12);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(120, 23);
-            this.button6.TabIndex = 12;
+            this.button6.TabIndex = 3;
             this.button6.Text = "清空异常";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
