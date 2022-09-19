@@ -25,6 +25,11 @@ namespace FindDifferentFile
         public Form1()
         {
             InitializeComponent();
+            //Console.WriteLine(this.Bounds);
+            //Console.WriteLine(this.panel1.Bounds);
+            //Console.WriteLine(this.panel2.Bounds);
+            AdjustPanel(null, null);
+            this.SizeChanged += new EventHandler(AdjustPanel);
         }
         /// <summary>
         /// 读取文件
@@ -299,6 +304,11 @@ namespace FindDifferentFile
             UpdateList(listBox1, FileInfoToString(files1), textBox3);
             UpdateList(listBox2, FileInfoToString(files2), textBox4);
         }
+        /// <summary>
+        /// 获取文件图标
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static Icon GetIconFromFile(string path)
         {
             if (File.Exists(path))
@@ -306,6 +316,14 @@ namespace FindDifferentFile
                 return Icon.ExtractAssociatedIcon(path);
             }
             return null;
+        }
+        void AdjustPanel(object sender, EventArgs e)
+        {
+            Size PanelSize = new Size((this.Size.Width - 24) / 2 - 6, this.Size.Height - 44 - 16);
+            Rectangle rect1 = new Rectangle(12, 44, PanelSize.Width, PanelSize.Height);
+            Rectangle rect2 = new Rectangle(12 + PanelSize.Width, 44, PanelSize.Width, PanelSize.Height);
+            this.panel1.Bounds = rect1;
+            this.panel2.Bounds = rect2;
         }
     }
 }

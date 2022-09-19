@@ -66,6 +66,10 @@
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel1.AutoSize = true;
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.Controls.Add(this.textBox3);
             this.panel1.Controls.Add(this.listBox1);
             this.panel1.Controls.Add(this.button1);
@@ -106,6 +110,10 @@
             // 
             // panel2
             // 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel2.AutoSize = true;
+            this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel2.Controls.Add(this.listBox2);
             this.panel2.Controls.Add(this.textBox4);
             this.panel2.Controls.Add(this.button2);
@@ -123,9 +131,12 @@
             this.listBox2.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.listBox2.FormattingEnabled = true;
             this.listBox2.ItemHeight = 12;
+            this.listBox2.Items.AddRange(new object[] {
+            "请导入文件"});
             this.listBox2.Location = new System.Drawing.Point(3, 32);
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(372, 364);
+            this.listBox2.Sorted = true;
             this.listBox2.TabIndex = 0;
             this.listBox2.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_DrawItem);
             this.listBox2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBox_DoubleClick);
@@ -209,9 +220,6 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(800, 500);
-            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "Form1";
             this.Text = "文件比较";
@@ -220,6 +228,7 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -229,7 +238,6 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ListBox listBox1;
-        public System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox textBox2;
@@ -239,6 +247,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 
