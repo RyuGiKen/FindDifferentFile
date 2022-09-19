@@ -6,11 +6,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using RyuGiKen;
-using static System.Net.WebRequestMethods;
 
 namespace FindDifferentFile
 {
@@ -33,11 +33,17 @@ namespace FindDifferentFile
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            List<FileInfo> result = GetFile.GetFileInfos(path);
+            List<FileInfo> result = new List<FileInfo>();
+            if (File.Exists(path))
+                result.Add(new FileInfo(path));
+            else
+            {
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                result = GetFile.GetFileInfos(path);
+            }
             Console.WriteLine("找到" + result?.Count);
-            UpdateList(listBox, result.ToArray(), count);
+            UpdateList(listBox, FileInfoToString(result), count);
             return result;
         }
         /// <summary>
@@ -51,7 +57,7 @@ namespace FindDifferentFile
             if (listBox != null)
             {
                 listBox.Items.Clear();
-                if (array != null || array.Length > 0)
+                if (array != null && array.Length > 0)
                     listBox.Items.AddRange(array);
                 if (count != null)
                     count.Text = listBox.Items.Count.ToString();
@@ -103,8 +109,8 @@ namespace FindDifferentFile
                     }
                 }
             }
-            UpdateList(listBox1, files1.ToArray(), textBox3);
-            UpdateList(listBox2, files2.ToArray(), textBox4);
+            UpdateList(listBox1, FileInfoToString(files1), textBox3);
+            UpdateList(listBox2, FileInfoToString(files2), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -135,8 +141,8 @@ namespace FindDifferentFile
             }
             files1 = data1;
             files2 = data2;
-            UpdateList(listBox1, files1.ToArray(), textBox3);
-            UpdateList(listBox2, files2.ToArray(), textBox4);
+            UpdateList(listBox1, FileInfoToString(files1), textBox3);
+            UpdateList(listBox2, FileInfoToString(files2), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -148,8 +154,109 @@ namespace FindDifferentFile
         {
             files1?.Clear();
             files2?.Clear();
-            UpdateList(listBox1, files1.ToArray(), textBox3);
-            UpdateList(listBox2, files2.ToArray(), textBox4);
+            UpdateList(listBox1, FileInfoToString(files1), textBox3);
+            UpdateList(listBox2, FileInfoToString(files2), textBox4);
+        }
+        /// <summary>
+        /// 重绘
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listBox_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
+        {
+            if (sender is ListBox)
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox.Items.Count > e.Index && e.Index >= 0)
+                {
+                    e.DrawBackground();
+                    Brush myBrush = Brushes.Black; //初始化字体颜色=黑色
+                    listBox.ItemHeight = 25; //设置项高
+                    e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, myBrush, e.Bounds, null);
+                }
+            }
+        }
+        /// <summary>
+        /// 双击打开文件位置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listBox_DoubleClick(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    if (sender is ListBox)
+                    {
+                        ListBox listBox = sender as ListBox;
+                        if (listBox.SelectedIndex >= 0)
+                        {
+                            FileInfo file = null;
+                            if (listBox == listBox1)
+                            {
+                                if (files1 != null && files1.Count > listBox.SelectedIndex)
+                                    file = files1[listBox.SelectedIndex];
+                            }
+                            else if (listBox == listBox2)
+                            {
+                                if (files2 != null && files2.Count > listBox.SelectedIndex)
+                                    file = files2[listBox.SelectedIndex];
+                            }
+                            if (file != null)
+                                Process.Start("Explorer", "/select," + file.DirectoryName + "\\" + file.Name);
+                        }
+                        /*if (listBox.SelectedIndex >= 0)
+                            Console.WriteLine("点击：" + listBox.SelectedIndex + " " + listBox.SelectedItem);
+                        else
+                            Console.WriteLine("点击：" + listBox.SelectedIndex);*/
+                    }
+                    break;
+            }
+        }
+        /// <summary>
+        /// 右键取消选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void listBox_MouseRightClick(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    if (sender is ListBox)
+                    {
+                        ListBox listBox = sender as ListBox;
+                        //listBox.SelectedIndex = -1;
+                        listBox.SelectedItem = null;
+                        //Console.WriteLine("点击：" + listBox.SelectedIndex);
+                    }
+                    break;
+            }
+        }
+        public static string[] FileInfoToString(List<FileInfo> files)
+        {
+            if (files == null || files.Count < 1)
+                return null;
+            List<string> result = new List<string>();
+            for (int i = 0; i < files.Count; i++)
+            {
+                result.Add(files[i].Name + "\n\r\t" + files[i].LastWriteTime.ToString());
+            }
+            return result.ToArray();
+        }
+        /// <summary>
+        /// 清空按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (files1 != null)
+                files1 = ValueAdjust.ClearNullItem(files1.ToArray()).ToList();
+            if (files2 != null)
+                files2 = ValueAdjust.ClearNullItem(files2.ToArray()).ToList();
+            UpdateList(listBox1, FileInfoToString(files1), textBox3);
+            UpdateList(listBox2, FileInfoToString(files2), textBox4);
         }
     }
 }
