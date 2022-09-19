@@ -7,10 +7,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using RyuGiKen;
+using Color = System.Drawing.Color;
 
 namespace FindDifferentFile
 {
@@ -36,12 +38,9 @@ namespace FindDifferentFile
             List<FileInfo> result = new List<FileInfo>();
             if (File.Exists(path))
                 result.Add(new FileInfo(path));
-            else
-            {
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
+            else if (Directory.Exists(path))
                 result = GetFile.GetFileInfos(path);
-            }
+
             Console.WriteLine("找到" + result?.Count);
             UpdateList(listBox, FileInfoToString(result), count);
             return result;
@@ -162,17 +161,59 @@ namespace FindDifferentFile
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void listBox_DrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
+        private void listBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (sender is ListBox)
             {
                 ListBox listBox = sender as ListBox;
                 if (listBox.Items.Count > e.Index && e.Index >= 0)
                 {
-                    e.DrawBackground();
-                    Brush myBrush = Brushes.Black; //初始化字体颜色=黑色
-                    listBox.ItemHeight = 25; //设置项高
-                    e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, myBrush, e.Bounds, null);
+                    //e.DrawBackground();
+                    Brush myBrush = Brushes.White;
+                    Brush textBrush = Brushes.Black;
+                    listBox.ItemHeight = 35; //设置项高
+                    if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                    {
+                        myBrush = new SolidBrush(SystemColors.Highlight);
+                        textBrush = new SolidBrush(SystemColors.Window);
+                    }
+                    else if (e.Index % 2 == 0)
+                    {
+                        myBrush = new SolidBrush(SystemColors.Window);
+                    }
+                    else
+                    {
+                        myBrush = new SolidBrush(SystemColors.Control);
+                    }
+                    e.Graphics.FillRectangle(myBrush, e.Bounds);
+                    //e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, textBrush, e.Bounds, null);
+                    e.DrawFocusRectangle();//焦点框 
+                    //绘制图标 
+                    FileInfo file = null;
+                    if (listBox == listBox1)
+                    {
+                        if (files1 != null && files1.Count > e.Index)
+                            file = files1[e.Index];
+                    }
+                    else if (listBox == listBox2)
+                    {
+                        if (files2 != null && files2.Count > e.Index)
+                            file = files2[e.Index];
+                    }
+                    Rectangle bounds = e.Bounds;
+                    Rectangle imageRect = new Rectangle(bounds.X, bounds.Y, bounds.Height, bounds.Height);
+                    if (file != null)
+                    {
+                        Image image = GetIconFromFile(file.FullName).ToBitmap();
+                        Graphics g = e.Graphics;
+                        if (image != null)
+                        {
+                            g.DrawImage(image, imageRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+                        }
+                    }
+                    //文本
+                    Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, bounds.Height - 5);
+                    e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, textBrush, textRect, null);
                 }
             }
         }
@@ -240,7 +281,7 @@ namespace FindDifferentFile
             List<string> result = new List<string>();
             for (int i = 0; i < files.Count; i++)
             {
-                result.Add(files[i].Name + "\n\r\t" + files[i].LastWriteTime.ToString());
+                result.Add(files[i].Name + "\n\r" + files[i].LastWriteTime.ToString() + "\t" + ValueAdjust.ConvertSize(files[i].Length));
             }
             return result.ToArray();
         }
@@ -257,6 +298,14 @@ namespace FindDifferentFile
                 files2 = ValueAdjust.ClearNullItem(files2.ToArray()).ToList();
             UpdateList(listBox1, FileInfoToString(files1), textBox3);
             UpdateList(listBox2, FileInfoToString(files2), textBox4);
+        }
+        public static Icon GetIconFromFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                return Icon.ExtractAssociatedIcon(path);
+            }
+            return null;
         }
     }
 }
