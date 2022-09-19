@@ -42,6 +42,9 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -51,7 +54,7 @@
             this.button1.Location = new System.Drawing.Point(312, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(63, 23);
-            this.button1.TabIndex = 7;
+            this.button1.TabIndex = 9;
             this.button1.Text = "导入";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -61,7 +64,7 @@
             this.textBox1.Location = new System.Drawing.Point(3, 3);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(250, 21);
-            this.textBox1.TabIndex = 5;
+            this.textBox1.TabIndex = 7;
             this.textBox1.Text = "目录路径";
             // 
             // panel1
@@ -77,7 +80,7 @@
             this.panel1.Location = new System.Drawing.Point(12, 44);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(378, 405);
-            this.panel1.TabIndex = 4;
+            this.panel1.TabIndex = 0;
             // 
             // textBox3
             // 
@@ -85,7 +88,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(47, 21);
-            this.textBox3.TabIndex = 6;
+            this.textBox3.TabIndex = 8;
             this.textBox3.Text = "文件数";
             // 
             // listBox1
@@ -121,7 +124,7 @@
             this.panel2.Location = new System.Drawing.Point(396, 44);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(378, 405);
-            this.panel2.TabIndex = 8;
+            this.panel2.TabIndex = 0;
             // 
             // listBox2
             // 
@@ -148,7 +151,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.ReadOnly = true;
             this.textBox4.Size = new System.Drawing.Size(47, 21);
-            this.textBox4.TabIndex = 10;
+            this.textBox4.TabIndex = 11;
             this.textBox4.Text = "文件数";
             // 
             // button2
@@ -156,7 +159,7 @@
             this.button2.Location = new System.Drawing.Point(312, 3);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(63, 23);
-            this.button2.TabIndex = 11;
+            this.button2.TabIndex = 12;
             this.button2.Text = "导入";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -166,7 +169,7 @@
             this.textBox2.Location = new System.Drawing.Point(3, 3);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(250, 21);
-            this.textBox2.TabIndex = 9;
+            this.textBox2.TabIndex = 10;
             this.textBox2.Text = "目录路径";
             // 
             // button3
@@ -209,11 +212,48 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(524, 18);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(84, 16);
+            this.checkBox1.TabIndex = 4;
+            this.checkBox1.Text = "区分大小写";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(608, 18);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(72, 16);
+            this.checkBox2.TabIndex = 5;
+            this.checkBox2.Text = "比较日期";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Checked = true;
+            this.checkBox3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox3.Location = new System.Drawing.Point(692, 18);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(72, 16);
+            this.checkBox3.TabIndex = 6;
+            this.checkBox3.Text = "比较大小";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.checkBox3);
+            this.Controls.Add(this.checkBox2);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -248,6 +288,9 @@
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.CheckBox checkBox3;
     }
 }
 

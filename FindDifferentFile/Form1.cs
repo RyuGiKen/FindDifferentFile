@@ -105,7 +105,7 @@ namespace FindDifferentFile
             {
                 for (int j = files2.Count - 1; j >= 0; j--)
                 {
-                    if (files1[i].Name.ToLower() == files2[j].Name.ToLower())
+                    if (CompareFile(files1[i], files2[j]))
                     {
                         files1.RemoveAt(i);
                         files2.RemoveAt(j);
@@ -133,7 +133,7 @@ namespace FindDifferentFile
             {
                 for (int j = files2.Count - 1; j >= 0; j--)
                 {
-                    if (files1[i].Name.ToLower() == files2[j].Name.ToLower())
+                    if (CompareFile(files1[i], files2[j]))
                     {
                         data1.Add(files1[i]);
                         files1.RemoveAt(i);
@@ -148,6 +148,20 @@ namespace FindDifferentFile
             UpdateList(listBox1, FileInfoToString(files1), textBox3);
             UpdateList(listBox2, FileInfoToString(files2), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
+        }
+        /// <summary>
+        /// 比较文件
+        /// </summary>
+        /// <param name="file1"></param>
+        /// <param name="file2"></param>
+        /// <returns></returns>
+        bool CompareFile(FileInfo file1, FileInfo file2)
+        {
+            bool[] state = new bool[3];
+            state[0] = this.checkBox1.Checked ? file1.Name == file2.Name : file1.Name.ToLower() == file2.Name.ToLower();
+            state[1] = this.checkBox3.Checked ? file1.LastWriteTime == file2.LastWriteTime : true;
+            state[2] = this.checkBox2.Checked ? file1.Length == file2.Length : true;
+            return state[0] && state[1] && state[2];
         }
         /// <summary>
         /// 清空按钮
@@ -286,7 +300,7 @@ namespace FindDifferentFile
             List<string> result = new List<string>();
             for (int i = 0; i < files.Count; i++)
             {
-                result.Add(files[i].Name + "\n\r" + files[i].LastWriteTime.ToString() + "\t" + ValueAdjust.ConvertSize(files[i].Length));
+                result.Add(files[i].Name + "\n\r " + files[i].LastWriteTime.ToString() + "\t" + ValueAdjust.ConvertSize(files[i].Length));
             }
             return result.ToArray();
         }
