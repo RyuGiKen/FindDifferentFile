@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using RyuGiKen;
+using WindowsAPI;
+using FileOperation;
 using Color = System.Drawing.Color;
 
 namespace FindDifferentFile
@@ -20,8 +23,8 @@ namespace FindDifferentFile
     {
         string path1;
         string path2;
-        List<FileInfo> files1 = new List<FileInfo>();
-        List<FileInfo> files2 = new List<FileInfo>();
+        List<FileData> files1 = new List<FileData>();
+        List<FileData> files2 = new List<FileData>();
         public Form1()
         {
             InitializeComponent();
@@ -36,18 +39,24 @@ namespace FindDifferentFile
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static List<FileInfo> LoadFiles(string path, ListBox listBox = null, TextBox count = null)
+        public static List<FileData> LoadFiles(string path, ListBox listBox = null, TextBox count = null)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
-            List<FileInfo> result = new List<FileInfo>();
+            List<FileInfo> temp = new List<FileInfo>();
+            List<FileData> result = new List<FileData>();
             if (File.Exists(path))
-                result.Add(new FileInfo(path));
+                temp.Add(new FileInfo(path));
             else if (Directory.Exists(path))
-                result = GetFile.GetFileInfos(path);
+                temp = GetFile.GetFileInfos(path);
 
-            Console.WriteLine("找到" + result?.Count);
-            UpdateList(listBox, FileInfoToString(result), count);
+            Console.WriteLine("找到" + temp?.Count);
+
+            for (int i = 0; i < temp.Count; i++)
+            {
+                result.Add(new FileData(temp[i]));
+            }
+            UpdateList(listBox, result.ToArray(), count);
             return result;
         }
         /// <summary>
@@ -105,7 +114,8 @@ namespace FindDifferentFile
             {
                 for (int j = files2.Count - 1; j >= 0; j--)
                 {
-                    if (CompareFile(files1[i], files2[j]))
+                    bool? result = CompareFile(files1[i], files2[j], !checkBox1.Checked, checkBox2.Checked, checkBox3.Checked);
+                    if (result == true)
                     {
                         files1.RemoveAt(i);
                         files2.RemoveAt(j);
@@ -113,8 +123,8 @@ namespace FindDifferentFile
                     }
                 }
             }
-            UpdateList(listBox1, FileInfoToString(files1), textBox3);
-            UpdateList(listBox2, FileInfoToString(files2), textBox4);
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -127,13 +137,14 @@ namespace FindDifferentFile
             DateTime dateTime = DateTime.Now;
             if (files1 == null || files1.Count < 1 || files2 == null || files2.Count < 1)
                 return;
-            List<FileInfo> data1 = new List<FileInfo>();
-            List<FileInfo> data2 = new List<FileInfo>();
+            List<FileData> data1 = new List<FileData>();
+            List<FileData> data2 = new List<FileData>();
             for (int i = files1.Count - 1; i >= 0; i--)
             {
                 for (int j = files2.Count - 1; j >= 0; j--)
                 {
-                    if (CompareFile(files1[i], files2[j]))
+                    bool? result = CompareFile(files1[i], files2[j], !checkBox1.Checked, checkBox2.Checked, checkBox3.Checked);
+                    if (result == true)
                     {
                         data1.Add(files1[i]);
                         files1.RemoveAt(i);
@@ -145,8 +156,8 @@ namespace FindDifferentFile
             }
             files1 = data1;
             files2 = data2;
-            UpdateList(listBox1, FileInfoToString(files1), textBox3);
-            UpdateList(listBox2, FileInfoToString(files2), textBox4);
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
             Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
@@ -154,13 +165,32 @@ namespace FindDifferentFile
         /// </summary>
         /// <param name="file1"></param>
         /// <param name="file2"></param>
+        /// <param name="CompareSimplifiedTraditional"></param>
+        /// <param name="CompareLastWriteTime"></param>
+        /// <param name="CompareSize"></param>
         /// <returns></returns>
-        bool CompareFile(FileInfo file1, FileInfo file2)
+        public static bool? CompareFile(FileData file1, FileData file2, bool CompareSimplifiedTraditional, bool CompareLastWriteTime, bool CompareSize)
+        {
+            if (file1?.Exists == true && file2?.Exists == true)
+                return CompareFile(file1.Info, file2.Info, CompareSimplifiedTraditional, CompareLastWriteTime, CompareSize);
+            else
+                return null;
+        }
+        /// <summary>
+        /// 比较文件
+        /// </summary>
+        /// <param name="file1"></param>
+        /// <param name="file2"></param>
+        /// <param name="CompareSimplifiedTraditional"></param>
+        /// <param name="CompareLastWriteTime"></param>
+        /// <param name="CompareSize"></param>
+        /// <returns></returns>
+        static bool CompareFile(FileInfo file1, FileInfo file2, bool CompareSimplifiedTraditional, bool CompareLastWriteTime, bool CompareSize)
         {
             bool[] state = new bool[3];
-            state[0] = this.checkBox1.Checked ? file1.Name == file2.Name : file1.Name.ToLower() == file2.Name.ToLower();
-            state[1] = this.checkBox3.Checked ? file1.LastWriteTime == file2.LastWriteTime : true;
-            state[2] = this.checkBox2.Checked ? file1.Length == file2.Length : true;
+            state[0] = CompareSimplifiedTraditional ? ChineseConverter.ToSimplified(file1.Name) == ChineseConverter.ToSimplified(file2.Name) : file1.Name.ToLower() == file2.Name.ToLower();
+            state[1] = CompareLastWriteTime ? file1.LastWriteTime == file2.LastWriteTime : true;
+            state[2] = CompareSize ? file1.Length == file2.Length : true;
             return state[0] && state[1] && state[2];
         }
         /// <summary>
@@ -172,8 +202,8 @@ namespace FindDifferentFile
         {
             files1?.Clear();
             files2?.Clear();
-            UpdateList(listBox1, FileInfoToString(files1), textBox3);
-            UpdateList(listBox2, FileInfoToString(files2), textBox4);
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
         }
         /// <summary>
         /// 重绘
@@ -208,7 +238,7 @@ namespace FindDifferentFile
                     //e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, textBrush, e.Bounds, null);
                     e.DrawFocusRectangle();//焦点框 
                     //绘制图标 
-                    FileInfo file = null;
+                    FileData file = null;
                     if (listBox == listBox1)
                     {
                         if (files1 != null && files1.Count > e.Index)
@@ -221,9 +251,9 @@ namespace FindDifferentFile
                     }
                     Rectangle bounds = e.Bounds;
                     Rectangle imageRect = new Rectangle(bounds.X, bounds.Y, bounds.Height, bounds.Height);
-                    if (file != null)
+                    if (file?.Exists == true)
                     {
-                        Image image = GetIconFromFile(file.FullName).ToBitmap();
+                        Image image = GetIconFromFile(file.Info.FullName).ToBitmap();
                         Graphics g = e.Graphics;
                         if (image != null)
                         {
@@ -231,78 +261,56 @@ namespace FindDifferentFile
                         }
                     }
                     //文本
-                    Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, bounds.Height - 5);
-                    e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, textBrush, textRect, null);
+                    StringFormat sf = StringFormat.GenericTypographic;
+                    sf.Trimming = StringTrimming.EllipsisCharacter;
+                    if (file == null)
+                    {
+                        Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, bounds.Height - 5);
+                        e.Graphics.DrawString(listBox.Items[e.Index].ToString(), e.Font, textBrush, textRect, sf);
+                    }
+                    else
+                    {
+                        if (file?.Exists != true)
+                            textBrush = new SolidBrush(SystemColors.ActiveBorder);
+                        int textHeight = (e.Font.Size * 1.5f).ToInteger();
+                        Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, textHeight);
+                        e.Graphics.DrawString(file.Info.Name, e.Font, textBrush, textRect, sf);
+                        textRect = new Rectangle(imageRect.Right + 5, bounds.Y + 5 + textHeight, bounds.Width - imageRect.Right - 5, textHeight);
+                        string temp = " ";
+                        temp += file?.Info?.LastWriteTime.ToString();
+                        temp += "\t";
+                        if (file?.Exists == true)
+                            temp += ValueAdjust.ConvertSize(file.Info.Length);
+                        e.Graphics.DrawString(temp, e.Font, textBrush, textRect, sf);
+                    }
                 }
             }
         }
-        /// <summary>
-        /// 双击打开文件位置
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listBox_DoubleClick(object sender, MouseEventArgs e)
+        private void listBox_MouseDown(object sender, MouseEventArgs e)
         {
+            ListBox listBox = GetListBox(sender, null);
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    if (sender is ListBox)
-                    {
-                        ListBox listBox = sender as ListBox;
-                        if (listBox.SelectedIndex >= 0)
-                        {
-                            FileInfo file = null;
-                            if (listBox == listBox1)
-                            {
-                                if (files1 != null && files1.Count > listBox.SelectedIndex)
-                                    file = files1[listBox.SelectedIndex];
-                            }
-                            else if (listBox == listBox2)
-                            {
-                                if (files2 != null && files2.Count > listBox.SelectedIndex)
-                                    file = files2[listBox.SelectedIndex];
-                            }
-                            if (file != null)
-                                Process.Start("Explorer", "/select," + file.DirectoryName + "\\" + file.Name);
-                        }
-                        /*if (listBox.SelectedIndex >= 0)
-                            Console.WriteLine("点击：" + listBox.SelectedIndex + " " + listBox.SelectedItem);
-                        else
-                            Console.WriteLine("点击：" + listBox.SelectedIndex);*/
-                    }
+                case MouseButtons.Right:
+                    int index = listBox.IndexFromPoint(e.Location);
+                    if (index >= 0)
+                        listBox.SetSelected(index, true);
+                    else
+                        listBox.ClearSelected();
                     break;
             }
-        }
-        /// <summary>
-        /// 右键取消选中
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listBox_MouseRightClick(object sender, MouseEventArgs e)
-        {
             switch (e.Button)
             {
                 case MouseButtons.Right:
-                    if (sender is ListBox)
-                    {
-                        ListBox listBox = sender as ListBox;
-                        //listBox.SelectedIndex = -1;
-                        listBox.SelectedItem = null;
-                        //Console.WriteLine("点击：" + listBox.SelectedIndex);
-                    }
+                    FileData file = GetFileFormListBox(sender, null);
+                    int index = listBox.IndexFromPoint(e.Location);
+                    toolStripMenuItem1.Enabled = index >= 0 && file?.Exists == true;
+                    toolStripMenuItem2.Enabled = index >= 0 && file?.Exists == true;
+                    toolStripMenuItem3.Enabled = index >= 0 && file?.Exists == true;
+                    contextMenuStrip1.Show(listBox, e.Location);
                     break;
             }
-        }
-        public static string[] FileInfoToString(List<FileInfo> files)
-        {
-            if (files == null || files.Count < 1)
-                return null;
-            List<string> result = new List<string>();
-            for (int i = 0; i < files.Count; i++)
-            {
-                result.Add(files[i].Name + "\n\r " + files[i].LastWriteTime.ToString() + "\t" + ValueAdjust.ConvertSize(files[i].Length));
-            }
-            return result.ToArray();
         }
         /// <summary>
         /// 清空按钮
@@ -311,12 +319,28 @@ namespace FindDifferentFile
         /// <param name="e"></param>
         private void button6_Click(object sender, EventArgs e)
         {
+            List<FileData> data1 = new List<FileData>();
+            List<FileData> data2 = new List<FileData>();
             if (files1 != null)
-                files1 = ValueAdjust.ClearNullItem(files1.ToArray()).ToList();
+            {
+                for (int i = files1.Count - 1; i >= 0; i--)
+                {
+                    if (files1[i].Exists)
+                        data1.Add(files1[i]);
+                }
+            }
             if (files2 != null)
-                files2 = ValueAdjust.ClearNullItem(files2.ToArray()).ToList();
-            UpdateList(listBox1, FileInfoToString(files1), textBox3);
-            UpdateList(listBox2, FileInfoToString(files2), textBox4);
+            {
+                for (int i = files2.Count - 1; i >= 0; i--)
+                {
+                    if (files2[i].Exists)
+                        data1.Add(files2[i]);
+                }
+            }
+            files1 = data1;
+            files2 = data2;
+            UpdateList(listBox1, files1.ToArray(), textBox3);
+            UpdateList(listBox2, files2.ToArray(), textBox4);
         }
         /// <summary>
         /// 获取文件图标
@@ -338,6 +362,106 @@ namespace FindDifferentFile
             Rectangle rect2 = new Rectangle(12 + PanelSize.Width, 44, PanelSize.Width, PanelSize.Height);
             this.panel1.Bounds = rect1;
             this.panel2.Bounds = rect2;
+        }
+        ListBox GetListBox(object sender, EventArgs e)
+        {
+            ListBox result = null;
+            if (sender is ListBox)
+            {
+                ListBox listBox = sender as ListBox;
+                result = listBox;
+            }
+            else if (sender is ToolStripMenuItem)
+            {
+                ToolStripMenuItem menuItem = (sender as ToolStripMenuItem);
+                ToolStrip parent = menuItem.GetCurrentParent();
+                if (parent == contextMenuStrip1 && contextMenuStrip1.SourceControl == listBox1)
+                {
+                    result = listBox1;
+                }
+                else if (parent == contextMenuStrip1 && contextMenuStrip1.SourceControl == listBox2)
+                {
+                    result = listBox2;
+                }
+            }
+            return result;
+        }
+        FileData GetFileFormListBox(object sender, EventArgs e)
+        {
+            FileData file = null;
+            if (sender is ListBox)
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox == listBox1)
+                {
+                    if (files1 != null && files1.Count > listBox1.SelectedIndex && listBox1.SelectedIndex >= 0)
+                        file = files1[listBox1.SelectedIndex];
+                }
+                else if (listBox == listBox2)
+                {
+                    if (files2 != null && files2.Count > listBox2.SelectedIndex && listBox2.SelectedIndex >= 0)
+                        file = files2[listBox2.SelectedIndex];
+                }
+            }
+            else if (sender is ToolStripMenuItem)
+            {
+                ToolStripMenuItem menuItem = (sender as ToolStripMenuItem);
+                ToolStrip parent = menuItem.GetCurrentParent();
+                if (parent == contextMenuStrip1 && contextMenuStrip1.SourceControl == listBox1)
+                {
+                    if (files1 != null && files1.Count > listBox1.SelectedIndex && listBox1.SelectedIndex >= 0)
+                        file = files1[listBox1.SelectedIndex];
+                }
+                else if (parent == contextMenuStrip1 && contextMenuStrip1.SourceControl == listBox2)
+                {
+                    if (files2 != null && files2.Count > listBox2.SelectedIndex && listBox2.SelectedIndex >= 0)
+                        file = files2[listBox2.SelectedIndex];
+                }
+            }
+            return file;
+        }
+        private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileData file = GetFileFormListBox(sender, e);
+            if (file?.Exists == true)
+                Process.Start(file.Info.FullName);
+        }
+        private void OpenFilePositionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileData file = GetFileFormListBox(sender, e);
+            if (file?.Exists == true)
+                Process.Start("Explorer", "/select," + file.Info.DirectoryName + "\\" + file.Info.Name);
+        }
+        private void DeleteFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileData file = GetFileFormListBox(sender, e);
+            if (file?.Exists == true)
+                FileOperationAPIWrapper.Send(file.Info.FullName);
+        }
+    }
+    public class FileData
+    {
+        public FileInfo Info;
+        public bool Exists
+        {
+            get
+            {
+                Info?.Refresh();
+                return Info?.Exists == true;
+            }
+        }
+        private FileData() { }
+        public FileData(FileInfo file)
+        {
+            Info = file;
+        }
+        public override string ToString()
+        {
+            Info?.Refresh();
+            if (Info != null && Info.Exists)
+                return Info.Name + "\n\r " + Info.LastWriteTime.ToString() + "\t" + ValueAdjust.ConvertSize(Info.Length);
+            else
+                return "Null";
         }
     }
 }
