@@ -14,13 +14,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using RyuGiKen;
 using WindowsAPI;
+using WindowsThumbnailProvider;
 using FileOperation;
-using Color = System.Drawing.Color;
 
 namespace FindDifferentFile
 {
     public partial class Form1 : Form
     {
+        public static int ListItemHeight = 36;
         string path1;
         string path2;
         List<FileData> files1 = new List<FileData>();
@@ -50,7 +51,7 @@ namespace FindDifferentFile
             else if (Directory.Exists(path))
                 temp = GetFile.GetFileInfos(path);
 
-            Console.WriteLine("找到" + temp?.Count);
+            Console.WriteLine("读取文件：" + temp?.Count);
 
             for (int i = 0; i < temp.Count; i++)
             {
@@ -86,6 +87,7 @@ namespace FindDifferentFile
             if (string.IsNullOrEmpty(textBox1.Text))
                 return;
             path1 = textBox1.Text;
+            ClearList1();
             files1 = LoadFiles(path1, listBox1, textBox3);
         }
         /// <summary>
@@ -98,6 +100,7 @@ namespace FindDifferentFile
             if (string.IsNullOrEmpty(textBox2.Text))
                 return;
             path2 = textBox2.Text;
+            ClearList2();
             files2 = LoadFiles(path2, listBox2, textBox4);
         }
         /// <summary>
@@ -117,6 +120,8 @@ namespace FindDifferentFile
                     bool? result = CompareFile(files1[i], files2[j], !checkBox1.Checked, checkBox2.Checked, checkBox3.Checked);
                     if (result == true)
                     {
+                        files1[i]?.Destroy();
+                        files2[j]?.Destroy();
                         files1.RemoveAt(i);
                         files2.RemoveAt(j);
                         break;
@@ -125,7 +130,7 @@ namespace FindDifferentFile
             }
             UpdateList(listBox1, files1.ToArray(), textBox3);
             UpdateList(listBox2, files2.ToArray(), textBox4);
-            Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
+            Console.WriteLine("找到差异：" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
         /// 找出相同
@@ -154,11 +159,13 @@ namespace FindDifferentFile
                     }
                 }
             }
+            ClearList1();
+            ClearList2();
             files1 = data1;
             files2 = data2;
             UpdateList(listBox1, files1.ToArray(), textBox3);
             UpdateList(listBox2, files2.ToArray(), textBox4);
-            Console.WriteLine("找到" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
+            Console.WriteLine("找到相同：" + (files1.Count + files2.Count) + "，耗时 " + (DateTime.Now - dateTime).TotalMilliseconds.ToString() + " ms");
         }
         /// <summary>
         /// 比较文件
@@ -200,10 +207,26 @@ namespace FindDifferentFile
         /// <param name="e"></param>
         private void button5_Click(object sender, EventArgs e)
         {
-            files1?.Clear();
-            files2?.Clear();
+            ClearList1();
+            ClearList2();
             UpdateList(listBox1, files1.ToArray(), textBox3);
             UpdateList(listBox2, files2.ToArray(), textBox4);
+        }
+        void ClearList1()
+        {
+            foreach (FileData file in files1)
+                file.Destroy();
+            files1?.Clear();
+            files1 = new List<FileData>();
+            GC.Collect();
+        }
+        void ClearList2()
+        {
+            foreach (FileData file in files2)
+                file.Destroy();
+            files2?.Clear();
+            files2 = new List<FileData>();
+            GC.Collect();
         }
         /// <summary>
         /// 重绘
@@ -220,7 +243,7 @@ namespace FindDifferentFile
                     //e.DrawBackground();
                     Brush myBrush = Brushes.White;
                     Brush textBrush = Brushes.Black;
-                    listBox.ItemHeight = 35; //设置项高
+                    listBox.ItemHeight = ListItemHeight; //设置项高
                     if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
                     {
                         myBrush = new SolidBrush(SystemColors.Highlight);
@@ -253,11 +276,10 @@ namespace FindDifferentFile
                     Rectangle imageRect = new Rectangle(bounds.X, bounds.Y, bounds.Height, bounds.Height);
                     if (file?.Exists == true)
                     {
-                        Image image = GetIconFromFile(file.Info.FullName).ToBitmap();
-                        Graphics g = e.Graphics;
+                        Image image = file.Icon;
                         if (image != null)
                         {
-                            g.DrawImage(image, imageRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+                            e.Graphics.DrawImage(image, imageRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
                         }
                     }
                     //文本
@@ -276,9 +298,9 @@ namespace FindDifferentFile
                         Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, textHeight);
                         e.Graphics.DrawString(file.Info.Name, e.Font, textBrush, textRect, sf);
                         textRect = new Rectangle(imageRect.Right + 5, bounds.Y + 5 + textHeight, bounds.Width - imageRect.Right - 5, textHeight);
-                        string temp = " ";
+                        string temp = "  ";
                         temp += file?.Info?.LastWriteTime.ToString();
-                        temp += "\t";
+                        temp += " \t ";
                         if (file?.Exists == true)
                             temp += ValueAdjust.ConvertSize(file.Info.Length);
                         e.Graphics.DrawString(temp, e.Font, textBrush, textRect, sf);
@@ -337,6 +359,8 @@ namespace FindDifferentFile
                         data1.Add(files2[i]);
                 }
             }
+            ClearList1();
+            ClearList2();
             files1 = data1;
             files2 = data2;
             UpdateList(listBox1, files1.ToArray(), textBox3);
@@ -442,6 +466,7 @@ namespace FindDifferentFile
     public class FileData
     {
         public FileInfo Info;
+        public Bitmap Icon;
         public bool Exists
         {
             get
@@ -454,6 +479,21 @@ namespace FindDifferentFile
         public FileData(FileInfo file)
         {
             Info = file;
+            Refresh();
+        }
+        public void Refresh()
+        {
+            Info?.Refresh();
+            if (Info?.Exists == true)
+            {
+                Icon = WindowsThumbnailProvider.WindowsThumbnailProvider.GetThumbnail(Info.FullName, Form1.ListItemHeight, Form1.ListItemHeight, ThumbnailOptions.None);
+                //Icon = GetIconFromFile(file.Info.FullName).ToBitmap();
+            }
+        }
+        public void Destroy()
+        {
+            Info = null;
+            Icon?.Dispose();
         }
         public override string ToString()
         {
