@@ -105,13 +105,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.HorizontalScrollbar = true;
             this.listBox1.ItemHeight = 12;
             this.listBox1.Items.AddRange(new object[] {
             "请导入文件"});
             this.listBox1.Location = new System.Drawing.Point(3, 32);
             this.listBox1.Name = "listBox1";
-            this.listBox1.ScrollAlwaysVisible = true;
             this.listBox1.Size = new System.Drawing.Size(372, 364);
             this.listBox1.TabIndex = 0;
             this.listBox1.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_DrawItem);
@@ -169,13 +167,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox2.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.listBox2.FormattingEnabled = true;
-            this.listBox2.HorizontalScrollbar = true;
             this.listBox2.ItemHeight = 12;
             this.listBox2.Items.AddRange(new object[] {
             "请导入文件"});
             this.listBox2.Location = new System.Drawing.Point(3, 32);
             this.listBox2.Name = "listBox2";
-            this.listBox2.ScrollAlwaysVisible = true;
             this.listBox2.Size = new System.Drawing.Size(372, 364);
             this.listBox2.Sorted = true;
             this.listBox2.TabIndex = 0;

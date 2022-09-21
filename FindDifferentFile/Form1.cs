@@ -276,10 +276,13 @@ namespace FindDifferentFile
                     Rectangle imageRect = new Rectangle(bounds.X, bounds.Y, bounds.Height, bounds.Height);
                     if (file?.Exists == true)
                     {
-                        Image image = file.Icon;
-                        if (image != null)
+                        if (file.Icon == null)
                         {
-                            e.Graphics.DrawImage(image, imageRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+                            file.Refresh();
+                        }
+                        if (file.Icon != null)
+                        {
+                            e.Graphics.DrawImage(file.Icon, imageRect, 0, 0, file.Icon.Width, file.Icon.Height, GraphicsUnit.Pixel);
                         }
                     }
                     //文本
@@ -296,13 +299,16 @@ namespace FindDifferentFile
                             textBrush = new SolidBrush(SystemColors.ActiveBorder);
                         int textHeight = (e.Font.Size * 1.5f).ToInteger();
                         Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, textHeight);
-                        e.Graphics.DrawString(file.Info.Name, e.Font, textBrush, textRect, sf);
+                        e.Graphics.DrawString(" " + file.Info.Name, e.Font, textBrush, textRect, sf);
                         textRect = new Rectangle(imageRect.Right + 5, bounds.Y + 5 + textHeight, bounds.Width - imageRect.Right - 5, textHeight);
                         string temp = "  ";
                         temp += file?.Info?.LastWriteTime.ToString();
-                        temp += " \t ";
                         if (file?.Exists == true)
+                        {
+                            for (int i = 0; i < 25 - temp.Length; i++)
+                                temp += " ";
                             temp += ValueAdjust.ConvertSize(file.Info.Length);
+                        }
                         e.Graphics.DrawString(temp, e.Font, textBrush, textRect, sf);
                     }
                 }
@@ -479,7 +485,7 @@ namespace FindDifferentFile
         public FileData(FileInfo file)
         {
             Info = file;
-            Refresh();
+            //Refresh();
         }
         public void Refresh()
         {
