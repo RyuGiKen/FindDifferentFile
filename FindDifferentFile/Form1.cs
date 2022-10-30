@@ -195,9 +195,10 @@ namespace FindDifferentFile
         static bool CompareFile(FileInfo file1, FileInfo file2, bool CompareSimplifiedTraditional, bool CompareLastWriteTime, bool CompareSize)
         {
             bool[] state = new bool[3];
-            state[0] = CompareSimplifiedTraditional ? ChineseConverter.ToSimplified(file1.Name) == ChineseConverter.ToSimplified(file2.Name) : file1.Name.ToLower() == file2.Name.ToLower();
+            state[0] = CompareSimplifiedTraditional ? ChineseConverter.ToSimplified(file1.Name).ToLower() == ChineseConverter.ToSimplified(file2.Name).ToLower() : file1.Name.ToLower() == file2.Name.ToLower();
             state[1] = CompareLastWriteTime ? file1.LastWriteTime == file2.LastWriteTime : true;
             state[2] = CompareSize ? file1.Length == file2.Length : true;
+            //Console.WriteLine(file1 + " " + file2 + " " + state[0] + " " + state[1] + " " + state[2]);
             return state[0] && state[1] && state[2];
         }
         /// <summary>
@@ -212,18 +213,20 @@ namespace FindDifferentFile
             UpdateList(listBox1, files1.ToArray(), textBox3);
             UpdateList(listBox2, files2.ToArray(), textBox4);
         }
-        void ClearList1()
+        void ClearList1(bool destroy = true)
         {
-            foreach (FileData file in files1)
-                file.Destroy();
+            if (destroy)
+                foreach (FileData file in files1)
+                    file.Destroy();
             files1?.Clear();
             files1 = new List<FileData>();
             GC.Collect();
         }
-        void ClearList2()
+        void ClearList2(bool destroy = true)
         {
-            foreach (FileData file in files2)
-                file.Destroy();
+            if (destroy)
+                foreach (FileData file in files2)
+                    file.Destroy();
             files2?.Clear();
             files2 = new List<FileData>();
             GC.Collect();
@@ -299,7 +302,7 @@ namespace FindDifferentFile
                             textBrush = new SolidBrush(SystemColors.ActiveBorder);
                         int textHeight = (e.Font.Size * 1.5f).ToInteger();
                         Rectangle textRect = new Rectangle(imageRect.Right, bounds.Y + 5, bounds.Width - imageRect.Right, textHeight);
-                        e.Graphics.DrawString(" " + file.Info.Name, e.Font, textBrush, textRect, sf);
+                        e.Graphics.DrawString(" " + file?.Info?.Name, e.Font, textBrush, textRect, sf);
                         textRect = new Rectangle(imageRect.Right + 5, bounds.Y + 5 + textHeight, bounds.Width - imageRect.Right - 5, textHeight);
                         string temp = "  ";
                         temp += file?.Info?.LastWriteTime.ToString();
@@ -347,28 +350,29 @@ namespace FindDifferentFile
         /// <param name="e"></param>
         private void button6_Click(object sender, EventArgs e)
         {
-            List<FileData> data1 = new List<FileData>();
-            List<FileData> data2 = new List<FileData>();
             if (files1 != null)
             {
                 for (int i = files1.Count - 1; i >= 0; i--)
                 {
-                    if (files1[i].Exists)
-                        data1.Add(files1[i]);
+                    if (files1[i]?.Exists == false)
+                    {
+                        files1[i]?.Destroy();
+                        files1.RemoveAt(i);
+                    }
                 }
             }
             if (files2 != null)
             {
                 for (int i = files2.Count - 1; i >= 0; i--)
                 {
-                    if (files2[i].Exists)
-                        data1.Add(files2[i]);
+                    if (files2[i]?.Exists == false)
+                    {
+                        files2[i]?.Destroy();
+                        files2.RemoveAt(i);
+                    }
                 }
             }
-            ClearList1();
-            ClearList2();
-            files1 = data1;
-            files2 = data2;
+            GC.Collect();
             UpdateList(listBox1, files1.ToArray(), textBox3);
             UpdateList(listBox2, files2.ToArray(), textBox4);
         }
